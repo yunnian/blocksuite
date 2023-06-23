@@ -27,6 +27,7 @@ import {
   type WorkspaceOptions,
 } from '@blocksuite/store';
 import { createBroadcastChannelProvider } from '@blocksuite/store/providers/broadcast-channel';
+import { createWebSocketClientProvider } from '@blocksuite/y-websocket/client';
 import type { IndexedDBProvider } from '@toeverything/y-indexeddb';
 import { createIndexedDBProvider } from '@toeverything/y-indexeddb';
 import { fileOpen } from 'browser-fs-access';
@@ -199,6 +200,11 @@ export function createWorkspaceOptions(): WorkspaceOptions {
 
   if (providerArgs.includes('bc')) {
     providerCreators.push(createBroadcastChannelProvider);
+    idGenerator = Generator.NanoID; // works in production
+  }
+
+  if (providerArgs.includes('ws')) {
+    providerCreators.push(createWebSocketClientProvider);
     idGenerator = Generator.NanoID; // works in production
   }
 

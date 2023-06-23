@@ -33,7 +33,8 @@
       "@blocksuite/virgo": ["./packages/virgo/src"],
       "@blocksuite/virgo/*": ["./packages/virgo/src/*"],
       "@blocksuite/connector": ["./packages/connector/src"],
-      "@blocksuite/connector/*": ["./packages/connector/src/*"]
+      "@blocksuite/connector/*": ["./packages/connector/src/*"],
+      "@blocksuite/y-websocket/*": ["./packages/y-websocket/src/*"]
     },
     "plugins": [
       {

@@ -234,6 +234,8 @@ export const createAsyncCallRPCProviderCreator = (
         cache.clear();
         options.cleanup();
       },
+      _rpc: rpc,
+      _impl: impl,
     } as const;
     return apis;
   };
