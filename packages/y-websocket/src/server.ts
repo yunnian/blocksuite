@@ -11,7 +11,7 @@ import { deserialize, serialize } from 'bson';
 import { createServer } from 'http';
 import type WebSocket from 'ws';
 import { WebSocketServer } from 'ws';
-import { encodeStateAsUpdate } from 'yjs';
+import type { Doc } from 'yjs';
 
 const createServerProvider = (pathname: string) => {
   const wss = new WebSocketServer({
@@ -20,24 +20,42 @@ const createServerProvider = (pathname: string) => {
 
   const channel = new Promise<EventBasedChannel>(resolve => {
     const wsSet = new Set<WebSocket>();
+
+    const docGuidSet = new Set<string>();
+    const registerServerDocUpdate = (doc: Doc) => {
+      if (!docGuidSet.has(doc.guid)) {
+        docGuidSet.add(doc.guid);
+
+        doc.on('update', update => {
+          const p = provider as any;
+          // distribute update to clients
+          p._rpc.sendUpdateDoc(doc.guid, update);
+        });
+      }
+
+      doc.subdocs.forEach(doc => registerServerDocUpdate(doc));
+    };
+
+    registerServerDocUpdate(doc.doc);
+
     wss.on('connection', ws => {
       wsSet.add(ws);
-      console.log('connected');
-      const p = provider as any;
-      p._rpc.sendUpdateDoc(doc.doc.guid, encodeStateAsUpdate(doc.doc));
-      doc.doc.subdocs.forEach(doc => {
-        p._rpc.sendUpdateDoc(doc.guid, encodeStateAsUpdate(doc));
-      });
     });
     resolve({
       on(callback) {
         const cb = (data: unknown) => {
           callback(data);
         };
-        // @ts-ignore
         wsSet.forEach(
+          // @ts-ignore
           ws => !ws._init && ws.on('message', cb) && (ws._init = true)
         );
+
+        return () => {
+          // @ts-ignore
+          wsSet.forEach(ws => ws._init && ws.off('message', cb));
+          wsSet.clear();
+        };
       },
       send(data: unknown) {
         wsSet.forEach(ws => ws.send(data as never));

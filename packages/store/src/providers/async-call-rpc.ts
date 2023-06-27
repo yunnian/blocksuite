@@ -184,7 +184,12 @@ export const createAsyncCallRPCProviderCreator = (
       doc.on('update', createOrGetUpdateHandler(doc));
       doc.on('destroy', createOrGetDestroyHandler(doc));
 
-      // query diff update
+      // update local doc state to remote
+      await rpc
+        .sendUpdateDoc(doc.guid, Y.encodeStateAsUpdate(doc))
+        .catch(console.error);
+
+      // update remote doc state to local
       const update = await rpc.diffUpdateDoc(doc.guid);
       if (!connected) {
         return;
