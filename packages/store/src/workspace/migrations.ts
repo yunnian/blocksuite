@@ -322,7 +322,11 @@ const migrations: Migration[] = [
                   width: col.width,
                   hide: col.hide,
                 })),
-                filter: { type: 'group', op: 'and', conditions: [] },
+                filter: {
+                  type: 'group',
+                  op: 'and',
+                  conditions: [],
+                },
                 mode: 'table',
               },
             ];
@@ -341,7 +345,9 @@ const migrations: Migration[] = [
               update: (cell: { id: string; value: unknown }) => void
             ) => {
               Object.values(cells).forEach(row => {
-                update(row[id]);
+                if (row[id] != null) {
+                  update(row[id]);
+                }
               });
             };
             const newColumns: Column[] = columns.map(v => {
