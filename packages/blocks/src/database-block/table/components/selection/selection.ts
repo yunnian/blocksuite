@@ -98,6 +98,7 @@ export class DatabaseSelectionView extends WithDisposable(ShadowlessElement) {
       dispose: this.eventDispatcher.add('click', context => {
         const event = context.get('pointerState').event;
         const target = event.target;
+        this.selection = undefined;
         if (target instanceof Element && this.isCurrentDatabase(target)) {
           const cell = target.closest('affine-database-cell-container');
           if (cell) {
@@ -105,7 +106,6 @@ export class DatabaseSelectionView extends WithDisposable(ShadowlessElement) {
             return true;
           }
         }
-        this.selection = undefined;
         return false;
       }),
     });
@@ -166,6 +166,13 @@ export class DatabaseSelectionView extends WithDisposable(ShadowlessElement) {
   }
 
   set selection(data) {
+    const current = this.selection;
+    if (current?.isEditing) {
+      this.getCellContainer(
+        current.focus.rowIndex,
+        current.focus.columnIndex
+      )?.cell?.exitEditMode();
+    }
     this.service.select(data);
   }
 
@@ -183,8 +190,14 @@ export class DatabaseSelectionView extends WithDisposable(ShadowlessElement) {
     return (x1: number, x2: number, y1: number, y2: number) => {
       const [startX, endX] = x1 < x2 ? [x1, x2] : [x2, x1];
       const [startY, endY] = y1 < y2 ? [y1, y2] : [y2, y1];
-      const row: MultiSelection = { start: 0, end: 0 };
-      const column: MultiSelection = { start: 0, end: 0 };
+      const row: MultiSelection = {
+        start: 0,
+        end: 0,
+      };
+      const column: MultiSelection = {
+        start: 0,
+        end: 0,
+      };
       for (let i = 0; i < rowOffsets.length; i++) {
         const offset = rowOffsets[i];
         if (offset < startY) {
@@ -232,10 +245,20 @@ export class DatabaseSelectionView extends WithDisposable(ShadowlessElement) {
       };
     };
     startDrag<
-      { row: MultiSelection; column: MultiSelection } | undefined,
-      { x: number; y: number }
+      | {
+          row: MultiSelection;
+          column: MultiSelection;
+        }
+      | undefined,
+      {
+        x: number;
+        y: number;
+      }
     >(evt, {
-      transform: evt => ({ x: evt.x, y: evt.y }),
+      transform: evt => ({
+        x: evt.x,
+        y: evt.y,
+      }),
       onDrag: () => undefined,
       onMove: ({ x, y }) => {
         const currentOffsetX = x - tableRect.left;
@@ -471,8 +494,14 @@ export class DatabaseSelectionView extends WithDisposable(ShadowlessElement) {
   public selectRow(index: number) {
     this.selection = {
       databaseId: this.databaseId,
-      rowsSelection: { start: index, end: index },
-      focus: { rowIndex: index, columnIndex: 0 },
+      rowsSelection: {
+        start: index,
+        end: index,
+      },
+      focus: {
+        rowIndex: index,
+        columnIndex: 0,
+      },
       isEditing: false,
     };
   }
@@ -496,8 +525,14 @@ export class DatabaseSelectionView extends WithDisposable(ShadowlessElement) {
     }
     this.selection = {
       databaseId: this.databaseId,
-      rowsSelection: { start: index, end: index },
-      focus: { rowIndex: index, columnIndex: 0 },
+      rowsSelection: {
+        start: index,
+        end: index,
+      },
+      focus: {
+        rowIndex: index,
+        columnIndex: 0,
+      },
       isEditing: false,
     };
   }
