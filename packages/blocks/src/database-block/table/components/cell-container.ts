@@ -7,7 +7,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 import { html } from 'lit/static-html.js';
 
 import type { DatabaseCellElement } from '../register.js';
-import type { ColumnManager } from '../table-view-manager.js';
+import type { DataViewTableColumnManager } from '../table-view-manager.js';
 
 /** affine-database-cell-container padding */
 const CELL_PADDING = 8;
@@ -49,7 +49,7 @@ export class DatabaseCellContainer extends WithDisposable(ShadowlessElement) {
   public readonly columnIndex!: number;
 
   @property({ attribute: false })
-  column!: ColumnManager;
+  column!: DataViewTableColumnManager;
   private _selectCurrentCell = (editing: boolean) => {
     const selection = this.closest('affine-database-table')?.selection;
     if (selection) {

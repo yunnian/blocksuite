@@ -2,7 +2,7 @@ import { ShadowlessElement, WithDisposable } from '@blocksuite/lit';
 import { property } from 'lit/decorators.js';
 import type { literal } from 'lit/static-html.js';
 
-import type { ColumnManager } from './table-view-manager.js';
+import type { DataViewColumnManager } from '../common/data-view-manager.js';
 import type { ColumnType, SetValueOption } from './types.js';
 
 export abstract class DatabaseCellElement<
@@ -11,7 +11,7 @@ export abstract class DatabaseCellElement<
 > extends WithDisposable(ShadowlessElement) {
   static tag: ReturnType<typeof literal>;
   @property({ attribute: false })
-  column!: ColumnManager<Value, Data>;
+  column!: DataViewColumnManager<Value, Data>;
   @property()
   rowId!: string;
   @property({ attribute: false })

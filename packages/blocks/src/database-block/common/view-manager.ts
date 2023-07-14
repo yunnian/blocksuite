@@ -35,6 +35,7 @@ export type DatabaseViewDataMap = {
 };
 type Pretty<T> = { [K in keyof T]: T[K] };
 export type TableViewData = Pretty<DatabaseViewDataMap['table']>;
+export type KanbanViewData = Pretty<DatabaseViewDataMap['kanban']>;
 
 export type DatabaseViewData = DatabaseViewDataMap[keyof DatabaseViewDataMap];
 
