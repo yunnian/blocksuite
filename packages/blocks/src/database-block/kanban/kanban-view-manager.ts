@@ -119,6 +119,13 @@ export class DataViewKanbanManager extends BaseDataViewManager {
     }
     return true;
   }
+
+  public get groups(): {
+    type: string;
+    value: unknown;
+  }[] {
+    return [];
+  }
 }
 
 export class DataViewKanbanColumnManager extends BaseDataViewColumnManager {

@@ -1,12 +1,7 @@
-import { assertExists, nanoid, Text } from '@blocksuite/store';
+import { assertExists } from '@blocksuite/store';
 import type { TemplateResult } from 'lit';
-import { html } from 'lit';
 
-import { getTagColor } from '../../components/tags/colors.js';
-import type { SelectTag } from '../../components/tags/multi-tag-select.js';
-import { tBoolean, tNumber, tString, tTag } from '../logical/data-type.js';
 import type { TType } from '../logical/typesystem.js';
-import { tArray } from '../logical/typesystem.js';
 
 type JSON =
   | null
@@ -18,7 +13,7 @@ type JSON =
       [k: string]: JSON;
     };
 
-type ColumnOps<
+export type ColumnOps<
   ColumnData extends Record<string, unknown> = Record<string, never>,
   CellData = unknown
 > = {
@@ -120,7 +115,7 @@ class ColumnHelper<
 > {
   constructor(
     public readonly type: string,
-    private ops: ColumnOps<T, CellData>
+    public ops: ColumnOps<T, CellData>
   ) {}
 
   create(
@@ -178,200 +173,3 @@ class ColumnHelper<
 }
 
 export const columnManager = new ColumnManager();
-export const titleHelper = columnManager.register<Text['yText']>('title', {
-  type: () => tString.create(),
-  defaultData: () => ({}),
-  configRender: () => html``,
-  cellToString: data => data?.toString() ?? '',
-  cellToJson: data => data?.toString() ?? null,
-});
-export const richTextHelper = columnManager.register<Text['yText']>(
-  'rich-text',
-  {
-    type: () => tString.create(),
-    defaultData: () => ({}),
-    configRender: () => html``,
-    cellToString: data => data?.toString() ?? '',
-    cellToJson: data => data?.toString() ?? null,
-  }
-);
-export type SelectColumnData = {
-  options: SelectTag[];
-};
-export const selectHelper = columnManager.register<string, SelectColumnData>(
-  'select',
-  {
-    type: data => tArray(tTag.create({ tags: data.options })),
-    defaultData: () => ({
-      options: [],
-    }),
-    configRender: () => html``,
-    cellToString: (data, colData) =>
-      colData.options.find(v => v.id === data)?.value ?? '',
-    cellToJson: data => data ?? null,
-  }
-);
-export const multiSelectHelper = columnManager.register<
-  string[],
-  SelectColumnData
->('multi-select', {
-  type: data => tArray(tTag.create({ tags: data.options })),
-  defaultData: () => ({
-    options: [],
-  }),
-  configRender: () => html``,
-  cellToString: (data, colData) =>
-    data?.map(id => colData.options.find(v => v.id === id)?.value).join(' '),
-  cellToJson: data => data ?? null,
-});
-export const numberHelper = columnManager.register<
-  number,
-  {
-    decimal: number;
-  }
->('number', {
-  type: () => tNumber.create(),
-  defaultData: () => ({ decimal: 0 }),
-  configRender: () => html``,
-  cellToString: data => data?.toString() ?? '',
-  cellToJson: data => data ?? null,
-});
-export const checkboxHelper = columnManager.register<boolean>('checkbox', {
-  type: () => tBoolean.create(),
-  defaultData: () => ({}),
-  configRender: () => html``,
-  cellToString: data => '',
-  cellToJson: data => data ?? null,
-});
-export const progressHelper = columnManager.register<number>('progress', {
-  type: () => tNumber.create(),
-  defaultData: () => ({}),
-  configRender: () => html``,
-  cellToString: data => data?.toString() ?? '',
-  cellToJson: data => data ?? null,
-});
-export const linkHelper = columnManager.register<string>('link', {
-  type: () => tString.create(),
-  defaultData: () => ({}),
-  configRender: () => html``,
-  cellToString: data => data?.toString() ?? '',
-  cellToJson: data => data ?? null,
-});
-
-export const textHelper = columnManager.register<string>('text', {
-  type: () => tString.create(),
-  defaultData: () => ({}),
-  configRender: () => html``,
-  cellToString: data => data ?? '',
-  cellToJson: data => data ?? null,
-});
-
-columnManager.registerConvert(
-  selectHelper,
-  multiSelectHelper,
-  (column, cells) => ({
-    column,
-    cells: cells.map(v => (v ? [v] : undefined)),
-  })
-);
-columnManager.registerConvert(selectHelper, richTextHelper, (column, cells) => {
-  const optionMap = Object.fromEntries(column.options.map(v => [v.id, v]));
-  return {
-    column: {},
-    cells: cells.map(v => new Text(v ? optionMap[v]?.value : '').yText),
-  };
-});
-columnManager.registerConvert(
-  multiSelectHelper,
-  selectHelper,
-  (column, cells) => ({
-    column,
-    cells: cells.map(v => v?.[0]),
-  })
-);
-columnManager.registerConvert(
-  multiSelectHelper,
-  richTextHelper,
-  (column, cells) => {
-    const optionMap = Object.fromEntries(column.options.map(v => [v.id, v]));
-    return {
-      column: {},
-      cells: cells.map(
-        arr =>
-          new Text(arr?.map(v => optionMap[v]?.value ?? '').join(',')).yText
-      ),
-    };
-  }
-);
-columnManager.registerConvert(
-  numberHelper,
-  richTextHelper,
-  (column, cells) => ({
-    column: {},
-    cells: cells.map(v => new Text(v?.toString()).yText),
-  })
-);
-columnManager.registerConvert(
-  progressHelper,
-  richTextHelper,
-  (column, cells) => ({
-    column: {},
-    cells: cells.map(v => new Text(v?.toString()).yText),
-  })
-);
-
-columnManager.registerConvert(richTextHelper, selectHelper, (column, cells) => {
-  const options: Record<string, SelectTag> = {};
-  const getTag = (name: string) => {
-    if (options[name]) return options[name];
-    const tag: SelectTag = { id: nanoid(), value: name, color: getTagColor() };
-    options[name] = tag;
-    return tag;
-  };
-  return {
-    cells: cells.map(v => {
-      const tags = v?.toString().split(',');
-      const value = tags?.[0]?.trim();
-      if (value) {
-        return getTag(value).id;
-      }
-      return undefined;
-    }),
-    column: {
-      options: Object.values(options),
-    },
-  };
-});
-columnManager.registerConvert(
-  richTextHelper,
-  multiSelectHelper,
-  (column, cells) => {
-    const options: Record<string, SelectTag> = {};
-    const getTag = (name: string) => {
-      if (options[name]) return options[name];
-      const tag: SelectTag = {
-        id: nanoid(),
-        value: name,
-        color: getTagColor(),
-      };
-      options[name] = tag;
-      return tag;
-    };
-    return {
-      cells: cells.map(v => {
-        const result: string[] = [];
-        const values = v?.toString().split(',');
-        values?.forEach(value => {
-          value = value.trim();
-          if (value) {
-            result.push(getTag(value).id);
-          }
-        });
-        return result;
-      }),
-      column: {
-        options: Object.values(options),
-      },
-    };
-  }
-);

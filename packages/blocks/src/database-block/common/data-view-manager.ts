@@ -1,7 +1,6 @@
 import { Slot } from '@blocksuite/global/utils';
 
 import type { DataSource } from '../../__internal__/datasource/base.js';
-import type { ColumnManager } from '../kanban/kanban-view-manager.js';
 import { registerInternalRenderer } from '../table/components/column-type/index.js';
 import type { ColumnRenderer } from '../table/register.js';
 import type {
@@ -16,7 +15,7 @@ const renderer = registerInternalRenderer();
 export interface DataViewManager {
   get readonly(): boolean;
 
-  get columnManagerList(): ColumnManager[];
+  get columnManagerList(): DataViewColumnManager[];
 
   get columns(): string[];
 
@@ -40,11 +39,11 @@ export interface DataViewManager {
 
   columnDuplicate(columnId: string): void;
 
-  columnGet(columnId: string): ColumnManager;
+  columnGet(columnId: string): DataViewColumnManager;
 
-  columnGetPreColumn(columnId: string): ColumnManager | undefined;
+  columnGetPreColumn(columnId: string): DataViewColumnManager | undefined;
 
-  columnGetNextColumn(columnId: string): ColumnManager | undefined;
+  columnGetNextColumn(columnId: string): DataViewColumnManager | undefined;
 
   columnGetName(columnId: string): string;
 
@@ -217,7 +216,7 @@ export abstract class BaseDataViewManager implements DataViewManager {
     this.dataSource.propertyDuplicate(columnId);
   }
 
-  public abstract columnGet(columnId: string): ColumnManager;
+  public abstract columnGet(columnId: string): DataViewColumnManager;
 
   public columnGetData(columnId: string): Record<string, unknown> {
     return this.dataSource.propertyGetData(columnId);
@@ -239,13 +238,17 @@ export abstract class BaseDataViewManager implements DataViewManager {
     return this.dataSource.propertyGetName(columnId);
   }
 
-  public columnGetNextColumn(columnId: string): ColumnManager | undefined {
+  public columnGetNextColumn(
+    columnId: string
+  ): DataViewColumnManager | undefined {
     return this.columnGet(
       this.columnGetIdByIndex(this.columnGetIndex(columnId) + 1)
     );
   }
 
-  public columnGetPreColumn(columnId: string): ColumnManager | undefined {
+  public columnGetPreColumn(
+    columnId: string
+  ): DataViewColumnManager | undefined {
     return this.columnGet(
       this.columnGetIdByIndex(this.columnGetIndex(columnId) - 1)
     );

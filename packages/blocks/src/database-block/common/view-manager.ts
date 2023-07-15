@@ -9,9 +9,7 @@ export type TableViewColumn = {
   width: number;
   hide?: boolean;
 };
-export type TableMixColumn<
-  Data extends Record<string, unknown> = Record<string, unknown>
-> = TableViewColumn & Column<Data>;
+
 export type KanbanViewColumn = {
   id: string;
   hide?: boolean;

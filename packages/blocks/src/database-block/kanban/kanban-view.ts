@@ -17,7 +17,7 @@ export class DataViewKanban extends WithDisposable(ShadowlessElement) {
   static override styles = styles;
 
   @property({ attribute: false })
-  kanbanViewManager!: DataViewKanbanManager;
+  view!: DataViewKanbanManager;
 
   @property({ attribute: false })
   blockOperation!: BlockOperation;
@@ -33,13 +33,20 @@ export class DataViewKanban extends WithDisposable(ShadowlessElement) {
 
   override firstUpdated() {
     this._disposables.add(
-      this.kanbanViewManager.slots.update.on(() => {
+      this.view.slots.update.on(() => {
         this.requestUpdate();
       })
     );
   }
 
   override render() {
+    const rows = this.view.rows;
+    const column = this.view.columnManagerList.find(v => {
+      return v.type === 'select' || v.type === 'multi-select';
+    });
+    if (!column) {
+      return;
+    }
     return html` <div class="affine-database-table"></div> `;
   }
 }
