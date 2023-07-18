@@ -155,7 +155,8 @@ export async function assertEdgelessCanvasText(page: Page, text: string) {
 }
 
 export async function assertRichImage(page: Page, count: number) {
-  const actual = await page.locator('.resizable-img').count();
+  const editor = getEditorLocator(page);
+  const actual = await editor.locator('.resizable-img').count();
   expect(actual).toEqual(count);
 }
 
@@ -197,7 +198,7 @@ export async function assertListPrefix(
   predict: (string | RegExp)[],
   range?: [number, number]
 ) {
-  const prefixs = await page.locator('.affine-list-block__prefix');
+  const prefixs = page.locator('.affine-list-block__prefix');
 
   let start = 0;
   let end = await prefixs.count();
