@@ -1,16 +1,14 @@
 import { Slot } from '@blocksuite/global/utils';
 
 import type { DataSource } from '../../__internal__/datasource/base.js';
-import { registerInternalRenderer } from '../table/components/column-type/index.js';
-import type { ColumnRenderer } from '../table/register.js';
 import type {
   ColumnDataUpdater,
   InsertPosition,
   SetValueOption,
 } from '../types.js';
+import type { CellRenderer } from './column-manager.js';
 import { columnManager } from './column-manager.js';
-
-const renderer = registerInternalRenderer();
+import { columnRenderer } from './column-renderer.js';
 
 export interface DataViewManager {
   get readonly(): boolean;
@@ -93,7 +91,7 @@ export interface DataViewColumnManager<
 
   get readonly(): boolean;
 
-  get renderer(): ColumnRenderer;
+  get renderer(): CellRenderer;
 
   get isFirst(): boolean;
 
@@ -330,8 +328,8 @@ export abstract class BaseDataViewColumnManager
     return this.viewManager.columnGetName(this.id);
   }
 
-  get renderer(): ColumnRenderer {
-    return renderer.get(this.type);
+  get renderer(): CellRenderer {
+    return columnRenderer.get(this.type).cellRenderer;
   }
 
   get type(): string {

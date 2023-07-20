@@ -1,6 +1,4 @@
-import { assertExists } from '@blocksuite/store';
 import { assertExists, nanoid, Text } from '@blocksuite/store';
-import type { TemplateResult } from 'lit';
 
 import { getTagColor } from '../../components/tags/colors.js';
 import type { SelectTag } from '../../components/tags/multi-tag-select.js';
@@ -8,7 +6,7 @@ import type { UniComponent } from '../../components/uni-component/uni-component.
 import { tBoolean, tNumber, tString, tTag } from '../logical/data-type.js';
 import type { TType } from '../logical/typesystem.js';
 import { tArray } from '../logical/typesystem.js';
-import type { ColumnManager } from '../table/table-view-manager.js';
+import type { DataViewColumnManager } from './data-view-manager.js';
 
 type JSON =
   | null
@@ -24,7 +22,7 @@ interface CellRenderProps<
   Data extends Record<string, unknown> = Record<string, never>,
   Value = unknown
 > {
-  column: ColumnManager<Value, Data>;
+  column: DataViewColumnManager<Value, Data>;
   rowId: string;
   isEditing: boolean;
   selectCurrentCell: (editing: boolean) => void;
