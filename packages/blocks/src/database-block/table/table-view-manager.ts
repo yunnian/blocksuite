@@ -2,6 +2,8 @@ import type { Slot } from '@blocksuite/store';
 
 import type { DataSource } from '../../__internal__/datasource/base.js';
 import type { FilterGroup } from '../common/ast.js';
+import type { CellRenderer } from '../common/column-manager.js';
+import { columnRenderer } from '../common/column-renderer.js';
 import {
   BaseDataViewColumnManager,
   BaseDataViewManager,
