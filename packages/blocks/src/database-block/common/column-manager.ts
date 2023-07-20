@@ -18,6 +18,16 @@ type JSON =
       [k: string]: JSON;
     };
 
+type JSON =
+  | null
+  | number
+  | string
+  | boolean
+  | JSON[]
+  | {
+      [k: string]: JSON;
+    };
+
 interface CellRenderProps<
   Data extends Record<string, unknown> = Record<string, never>,
   Value = unknown
