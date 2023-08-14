@@ -4,6 +4,7 @@ import { assertExists } from '@blocksuite/global/utils';
 import type { BaseBlockModel, Page } from '@blocksuite/store';
 import { Text, Utils } from '@blocksuite/store';
 
+import type { ListBlockComponent } from '../../list-block/list-block.js';
 import type { PageBlockModel } from '../../models.js';
 import { supportsChildren } from '../utils/common.js';
 import {
@@ -13,6 +14,7 @@ import {
 import type { BlockModelProps } from '../utils/model.js';
 import { matchFlavours } from '../utils/model.js';
 import {
+  getBlockElementByModel,
   getModelByElement,
   getNextBlock,
   getPreviousBlock,
@@ -197,7 +199,17 @@ export function handleIndent(page: Page, model: ExtendedModel, offset = 0) {
     }
   }
 
-  assertExists(model);
+  // 5. If parent is collapsed, expand it
+  const newParent = previousSibling;
+  if (matchFlavours(newParent, ['affine:list'])) {
+    // page.updateBlock(parent, { showChildren: true });
+    const listEle = getBlockElementByModel(
+      newParent
+    ) as ListBlockComponent | null;
+    assertExists(listEle, 'parent element not found');
+    listEle.showChildren = true;
+  }
+
   asyncSetVRange(model, { index: offset, length: 0 });
 }
 
@@ -327,7 +339,11 @@ export function handleUnindent(
     }
   }
 
-  asyncSetVRange(model, { index: offset, length: 0 });
+  // FIXME: wait a microtask is a workaround. Prevent query legacy DOM before the DOM is updated
+  // Fix https://github.com/toeverything/blocksuite/pull/3770
+  Promise.resolve().then(() =>
+    asyncSetVRange(model, { index: offset, length: 0 })
+  );
 }
 
 export function handleMultiBlockUnindent(page: Page, models: BaseBlockModel[]) {
